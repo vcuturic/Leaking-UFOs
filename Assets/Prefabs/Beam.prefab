@@ -202,3 +202,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ce2a81ae114f7c40a96cc37852b40c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  singleBeamDamage: 0.1

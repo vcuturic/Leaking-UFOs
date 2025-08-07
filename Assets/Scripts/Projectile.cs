@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    public GameObject owner;
+    private GameObject owner;
+    public float singleBeamDamage;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -27,10 +28,12 @@ public class Projectile : MonoBehaviour
 
             if (player != null)
             {
-                player.TakeDamage(3);
+                player.TakeDamage(singleBeamDamage);
             }
 
             Destroy(gameObject);
         }
     }
+
+    public void SetProjectileOwner(GameObject projectileOwner) => owner = projectileOwner;
 }

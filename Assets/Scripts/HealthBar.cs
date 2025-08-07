@@ -7,14 +7,14 @@ public class HealthBar : MonoBehaviour
     public Slider easeHealthSlider;
     private float lerpSpeed = 0.05f;
 
-    private float targetHealth;
+    private float playerHealth;
     private PlayerController player;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        player = FindFirstObjectByType<PlayerController>();
-        targetHealth = player.GetCurrentHealth();
+        player = GetComponentInParent<PlayerController>();
+        playerHealth = player.GetCurrentHealth();
 
         healthSlider.maxValue = player.GetMaxHealth();
         easeHealthSlider.maxValue = player.GetMaxHealth();
@@ -25,20 +25,23 @@ public class HealthBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (healthSlider.value != targetHealth)
+        if (healthSlider.value != playerHealth)
         {
-            healthSlider.value = targetHealth;
+            healthSlider.value = playerHealth;
         }
 
         if (healthSlider.value != easeHealthSlider.value)
         {
-            easeHealthSlider.value = Mathf.Lerp(easeHealthSlider.value, targetHealth, lerpSpeed);
+            easeHealthSlider.value = Mathf.Lerp(easeHealthSlider.value, playerHealth, lerpSpeed);
         }
     }
 
-    void UpdateHealthDisplay(float newHealth)
+    void UpdateHealthDisplay(string targetId, float newHealth)
     {
-        targetHealth = newHealth;
+        if(player.playerId == targetId)
+        {
+            playerHealth = newHealth;
+        }
     }
 
     void OnDestroy()
