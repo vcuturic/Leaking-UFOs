@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8577290534878717008}
   - component: {fileID: 6245248421894529164}
   - component: {fileID: 3023473195182952300}
-  - component: {fileID: 7777497935119546019}
+  - component: {fileID: 4548782107763831362}
   m_Layer: 0
   m_Name: Beam
   m_TagString: Untagged
@@ -190,7 +190,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.023989271, y: 0.0071475506, z: 1.00957}
   m_Center: {x: 0.000016522907, y: 0.0007187724, z: 0.50810283}
---- !u!114 &7777497935119546019
+--- !u!114 &4548782107763831362
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -199,6 +199,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3195834820899291483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb5a59d303aa5364a870f6603805ffb5, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ce2a81ae114f7c40a96cc37852b40c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
