@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -22,11 +23,13 @@ public class PlayerController : MonoBehaviour
     public string playerId;
     // PoweruUps
     public event EventHandler<PowerUpEventArgs> OnPowerUpPicked;
+    private Dictionary<PowerUpTypes, int> powerUps = new Dictionary<PowerUpTypes, int>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         currentHealth = maxHealth;
+        InitializePowerUps();
         OnHealthChanged?.Invoke(playerId, currentHealth);
     }
 
@@ -39,6 +42,12 @@ public class PlayerController : MonoBehaviour
         transform.Translate(Vector3.forward * Time.deltaTime * speed * forwardInput);
         transform.Translate(Vector3.right * Time.deltaTime * turnSpeed * horizontalInput);
 
+        HandleShooting();
+        HandleAbilities();
+    }
+
+    void HandleShooting()
+    {
         if (Input.GetButton("Jump" + playerId) && Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + fireRate;
@@ -52,13 +61,64 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    void HandleAbilities()
+    {
+        if (Input.GetButton("Ability1_" + playerId))
+        {
+            if (powerUps[PowerUpTypes.BazookaLauncher] > 0)
+            {
+                Debug.Log($"Player {playerId} shoot Bazooka launcher!");
+                powerUps[PowerUpTypes.BazookaLauncher] -= 1;
+            }
+        }
+
+        if (Input.GetButton("Ability2_" + playerId))
+        {
+            if (powerUps[PowerUpTypes.CQC] > 0)
+            {
+                Debug.Log($"Player {playerId} engaged in Close Quarters Combat!");
+                powerUps[PowerUpTypes.CQC] -= 1;
+            }
+        }
+
+        if (Input.GetButton("Ability3_" + playerId))
+        {
+            if (powerUps[PowerUpTypes.Shield] > 0)
+            {
+                Debug.Log($"Player {playerId} activated shield!");
+                powerUps[PowerUpTypes.Shield] -= 1;
+            }
+        }
+
+        // ADD power used here
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if(other.CompareTag("Powerup"))
         {
             Destroy(other.gameObject);
-            OnPowerUpPicked?.Invoke(this, new PowerUpEventArgs(playerId));
+            GeneratePowerUp();
+            OnPowerUpPicked?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
+        }
+    }
+
+    void InitializePowerUps()
+    {
+        powerUps.Add(PowerUpTypes.BazookaLauncher, 0);
+        powerUps.Add(PowerUpTypes.CQC, 0);
+        powerUps.Add(PowerUpTypes.Shield, 0);
+    }
+
+    public void GeneratePowerUp()
+    {
+        PowerUpTypes powerUp = (PowerUpTypes)UnityEngine.Random.Range(0, 3);
+
+        Debug.Log($"Generated {powerUp} PowerUp!");
+
+        if(powerUps.ContainsKey(powerUp))
+        {
+            powerUps[powerUp] += 1;
         }
     }
 
