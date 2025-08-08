@@ -44,7 +44,7 @@ public class HealthBar : MonoBehaviour
         }
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (player != null)
             player.OnHealthChanged -= UpdateHealthDisplay;

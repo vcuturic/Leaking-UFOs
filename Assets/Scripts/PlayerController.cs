@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -19,6 +20,8 @@ public class PlayerController : MonoBehaviour
     public event HealthChanged OnHealthChanged;
     // Local Multiplayer
     public string playerId;
+    // PoweruUps
+    public event EventHandler<PowerUpEventArgs> OnPowerUpPicked;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -47,6 +50,15 @@ public class PlayerController : MonoBehaviour
                 Projectile projScript = projectile.GetComponent<Projectile>();
                 projScript.SetProjectileOwner(gameObject);
             }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Powerup"))
+        {
+            Destroy(other.gameObject);
+            OnPowerUpPicked?.Invoke(this, new PowerUpEventArgs(playerId));
         }
     }
 
