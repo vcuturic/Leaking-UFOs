@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,6 +28,9 @@ public class PlayerController : MonoBehaviour
     // Rocket
     public GameObject rocketPrefab;
     private Vector3 rocketOffset = new Vector3(0, 1, 0);
+    public GameObject hammerPrefab;
+    private Vector3 hammerOffset = new Vector3(0, 1, 0);
+    private float hammerDamage = 30f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -66,6 +70,8 @@ public class PlayerController : MonoBehaviour
     }
     void HandleAbilities()
     {
+        GameObject enemyPlayer = GetEnemyGameObject();
+
         if (Input.GetButtonDown("Ability1_" + playerId))
         {
             if (powerUps[PowerUpTypes.BazookaLauncher] > 0)
@@ -75,16 +81,25 @@ public class PlayerController : MonoBehaviour
 
                 GameObject rocket = Instantiate(rocketPrefab, transform.position + rocketOffset, rocketPrefab.transform.rotation);
                 HomingMissile missileScript = rocket.GetComponent<HomingMissile>();
-                missileScript.Initialize(GetEnemyGameObject());
+                missileScript.Initialize(enemyPlayer);
             }
         }
 
-        if (Input.GetButtonDown("Ability2_" + playerId))
+        if (Input.GetButtonDown("Ability2_" + playerId) && IsPlayerInRangeOf(enemyPlayer, 2f))
         {
             if (powerUps[PowerUpTypes.CQC] > 0)
             {
                 Debug.Log($"Player {playerId} engaged in Close Quarters Combat!");
                 powerUps[PowerUpTypes.CQC] -= 1;
+
+                var HammerTargetRotation = Quaternion.LookRotation(enemyPlayer.transform.position - transform.position);
+                GameObject spawnedHammer = Instantiate(hammerPrefab, transform.position + hammerOffset, HammerTargetRotation);
+               
+                PlayerController enemyScript = enemyPlayer.GetComponent<PlayerController>();
+                
+                enemyScript.TakeDamage(hammerDamage);
+
+                StartCoroutine(RemoveSpawnedHammer(spawnedHammer));
             }
         }
 
@@ -110,6 +125,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    IEnumerator RemoveSpawnedHammer(GameObject obj)
+    {
+        yield return new WaitForSeconds(1);
+        Destroy(obj);
+    }
+
     GameObject GetEnemyGameObject()
     {
         if (playerId == null) return null;
@@ -123,7 +144,7 @@ public class PlayerController : MonoBehaviour
     void InitializePowerUps()
     {
         powerUps.Add(PowerUpTypes.BazookaLauncher, 0);
-        powerUps.Add(PowerUpTypes.CQC, 0);
+        powerUps.Add(PowerUpTypes.CQC, 5);
         powerUps.Add(PowerUpTypes.Shield, 0);
     }
 
@@ -144,6 +165,12 @@ public class PlayerController : MonoBehaviour
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(playerId, currentHealth);
+    }
+
+    bool IsPlayerInRangeOf(GameObject target, float range)
+    {
+        float distance = Vector3.Distance(transform.position, target.transform.position);
+        return distance <= range;
     }
 
     public float GetCurrentHealth() => currentHealth;
