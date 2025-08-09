@@ -34,7 +34,10 @@ public class HomingMissile : MonoBehaviour
         {
             Debug.Log("Enemy hit!");
             PlayerController enemyScript = enemyPlayer.GetComponent<PlayerController>();
-            enemyScript.TakeDamage(missileDamage);
+
+            if(!enemyScript.shieldActive)
+                enemyScript.TakeDamage(missileDamage);
+
             Destroy(gameObject);
         }
     }

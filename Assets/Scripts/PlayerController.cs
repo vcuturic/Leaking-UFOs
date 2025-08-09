@@ -22,15 +22,20 @@ public class PlayerController : MonoBehaviour
     public event HealthChanged OnHealthChanged;
     // Local Multiplayer
     public string playerId;
-    // PoweruUps
+    // PowerUps/Abilities
     public event EventHandler<PowerUpEventArgs> OnPowerUpPicked;
     private Dictionary<PowerUpTypes, int> powerUps = new Dictionary<PowerUpTypes, int>();
-    // Rocket
+    // Rocket/Bazooka
     public GameObject rocketPrefab;
     private Vector3 rocketOffset = new Vector3(0, 1, 0);
+    // Hammer/CQC
     public GameObject hammerPrefab;
     private Vector3 hammerOffset = new Vector3(0, 1, 0);
     private float hammerDamage = 30f;
+    // Shield
+    public GameObject shieldPrefab;
+    public bool shieldActive = false;
+    public float shieldDurationSeconds = 4f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -80,7 +85,9 @@ public class PlayerController : MonoBehaviour
                 powerUps[PowerUpTypes.BazookaLauncher] -= 1;
 
                 GameObject rocket = Instantiate(rocketPrefab, transform.position + rocketOffset, rocketPrefab.transform.rotation);
+                
                 HomingMissile missileScript = rocket.GetComponent<HomingMissile>();
+                
                 missileScript.Initialize(enemyPlayer);
             }
         }
@@ -103,12 +110,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetButtonDown("Ability3_" + playerId))
+        if (Input.GetButtonDown("Ability3_" + playerId) && !shieldActive)
         {
             if (powerUps[PowerUpTypes.Shield] > 0)
             {
                 Debug.Log($"Player {playerId} activated shield!");
+
                 powerUps[PowerUpTypes.Shield] -= 1;
+
+                GameObject spawnedShield = Instantiate(shieldPrefab, transform.position, transform.rotation, transform);
+
+                shieldActive = true;
+
+                StartCoroutine(StartShieldDeactivationCountdown(spawnedShield));
             }
         }
 
@@ -123,6 +137,13 @@ public class PlayerController : MonoBehaviour
             GeneratePowerUp();
             OnPowerUpPicked?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
         }
+    }
+
+    IEnumerator StartShieldDeactivationCountdown(GameObject obj)
+    {
+        yield return new WaitForSeconds(shieldDurationSeconds);
+        shieldActive = false;
+        Destroy(obj);
     }
 
     IEnumerator RemoveSpawnedHammer(GameObject obj)
@@ -141,11 +162,25 @@ public class PlayerController : MonoBehaviour
             return GameObject.FindWithTag("Player");
     }
 
+    public void AddPowerUp(PowerUpTypes powerUpType)
+    {
+        if (!powerUps.ContainsKey(powerUpType)) return;
+
+        powerUps.Add(powerUpType, 1);
+    }
+
+    public void UsePowerUp(PowerUpTypes powerUpType)
+    {
+        if (powerUps[powerUpType] <= 0) return;
+
+        powerUps[powerUpType]--;
+    }
+
     void InitializePowerUps()
     {
-        powerUps.Add(PowerUpTypes.BazookaLauncher, 0);
+        powerUps.Add(PowerUpTypes.BazookaLauncher, 5);
         powerUps.Add(PowerUpTypes.CQC, 5);
-        powerUps.Add(PowerUpTypes.Shield, 0);
+        powerUps.Add(PowerUpTypes.Shield, 5);
     }
 
     public void GeneratePowerUp()

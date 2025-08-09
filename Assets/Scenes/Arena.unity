@@ -3173,7 +3173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.91
+      value: -8
       objectReference: {fileID: 0}
     - target: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3267,6 +3267,9 @@ MonoBehaviour:
   playerId: 1
   rocketPrefab: {fileID: 5076225128820153342, guid: 9aa71d6a80e4d4243ad24d7d5c849e89, type: 3}
   hammerPrefab: {fileID: 1048244950673239578, guid: 670b56dc004b71043a883cae1a8e354b, type: 3}
+  shieldPrefab: {fileID: 876022581057021491, guid: 998f19e94578e454cb8a72206742b481, type: 3}
+  shieldActive: 0
+  shieldDurationSeconds: 4
 --- !u!54 &1731590371
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4089,6 +4092,9 @@ MonoBehaviour:
   playerId: 2
   rocketPrefab: {fileID: 5076225128820153342, guid: 9aa71d6a80e4d4243ad24d7d5c849e89, type: 3}
   hammerPrefab: {fileID: 1048244950673239578, guid: 670b56dc004b71043a883cae1a8e354b, type: 3}
+  shieldPrefab: {fileID: 876022581057021491, guid: 998f19e94578e454cb8a72206742b481, type: 3}
+  shieldActive: 0
+  shieldDurationSeconds: 4
 --- !u!4 &2015093311 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
