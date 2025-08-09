@@ -433,7 +433,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -5.19
       objectReference: {fileID: 0}
     - target: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3173,7 +3173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -7.91
       objectReference: {fileID: 0}
     - target: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3265,6 +3265,7 @@ MonoBehaviour:
   - {fileID: 1177963592}
   fireRate: 0.2
   playerId: 1
+  rocketPrefab: {fileID: 5076225128820153342, guid: 9aa71d6a80e4d4243ad24d7d5c849e89, type: 3}
 --- !u!54 &1731590371
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4085,6 +4086,7 @@ MonoBehaviour:
   - {fileID: 1229114261}
   fireRate: 0.2
   playerId: 2
+  rocketPrefab: {fileID: 5076225128820153342, guid: 9aa71d6a80e4d4243ad24d7d5c849e89, type: 3}
 --- !u!4 &2015093311 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 986320709807212642, guid: 96aeffe1bfd1d4b04908e4a5d7e36d36, type: 3}

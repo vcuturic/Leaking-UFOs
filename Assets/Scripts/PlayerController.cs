@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     // PoweruUps
     public event EventHandler<PowerUpEventArgs> OnPowerUpPicked;
     private Dictionary<PowerUpTypes, int> powerUps = new Dictionary<PowerUpTypes, int>();
+    // Rocket
+    public GameObject rocketPrefab;
+    private Vector3 rocketOffset = new Vector3(0, 1, 0);
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -63,16 +66,20 @@ public class PlayerController : MonoBehaviour
     }
     void HandleAbilities()
     {
-        if (Input.GetButton("Ability1_" + playerId))
+        if (Input.GetButtonDown("Ability1_" + playerId))
         {
             if (powerUps[PowerUpTypes.BazookaLauncher] > 0)
             {
                 Debug.Log($"Player {playerId} shoot Bazooka launcher!");
                 powerUps[PowerUpTypes.BazookaLauncher] -= 1;
+
+                GameObject rocket = Instantiate(rocketPrefab, transform.position + rocketOffset, rocketPrefab.transform.rotation);
+                HomingMissile missileScript = rocket.GetComponent<HomingMissile>();
+                missileScript.Initialize(GetEnemyGameObject());
             }
         }
 
-        if (Input.GetButton("Ability2_" + playerId))
+        if (Input.GetButtonDown("Ability2_" + playerId))
         {
             if (powerUps[PowerUpTypes.CQC] > 0)
             {
@@ -81,7 +88,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetButton("Ability3_" + playerId))
+        if (Input.GetButtonDown("Ability3_" + playerId))
         {
             if (powerUps[PowerUpTypes.Shield] > 0)
             {
@@ -101,6 +108,16 @@ public class PlayerController : MonoBehaviour
             GeneratePowerUp();
             OnPowerUpPicked?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
         }
+    }
+
+    GameObject GetEnemyGameObject()
+    {
+        if (playerId == null) return null;
+
+        if (playerId.Equals("1"))
+            return GameObject.FindWithTag("Player2");
+        else
+            return GameObject.FindWithTag("Player");
     }
 
     void InitializePowerUps()
