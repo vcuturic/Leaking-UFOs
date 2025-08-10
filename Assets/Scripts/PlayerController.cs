@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -36,30 +37,50 @@ public class PlayerController : MonoBehaviour
     public GameObject shieldPrefab;
     public bool shieldActive = false;
     public float shieldDurationSeconds = 4f;
+    // GameManager
+    private GameManager gameManager;
+    // RulesManager - Judge
+    private RulesManager rulesManager;
+    // Player status effects
+    private bool playerStunned = false;
+    private float stunDurationSeconds = 3;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameManager = FindFirstObjectByType<GameManager>();
+        rulesManager = FindFirstObjectByType<RulesManager>();
+
         currentHealth = maxHealth;
+
         InitializePowerUps();
+
         OnHealthChanged?.Invoke(playerId, currentHealth);
     }
 
     // Update is called once per frame
     void Update()
     {
+        HandleMovement();
+        HandleShooting();
+        HandleAbilities();
+    }
+
+    void HandleMovement()
+    {
+        if (!gameManager.isGameActive || playerStunned) return;
+
         horizontalInput = Input.GetAxis("Horizontal" + playerId);
         forwardInput = Input.GetAxis("Vertical" + playerId);
 
         transform.Translate(Vector3.forward * Time.deltaTime * speed * forwardInput);
         transform.Translate(Vector3.right * Time.deltaTime * turnSpeed * horizontalInput);
-
-        HandleShooting();
-        HandleAbilities();
     }
 
     void HandleShooting()
     {
+        if (!gameManager.isGameActive || playerStunned) return;
+
         if (Input.GetButton("Jump" + playerId) && Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + fireRate;
@@ -75,14 +96,19 @@ public class PlayerController : MonoBehaviour
     }
     void HandleAbilities()
     {
+        if (!gameManager.isGameActive || playerStunned) return;
+
         GameObject enemyPlayer = GetEnemyGameObject();
 
         if (Input.GetButtonDown("Ability1_" + playerId))
         {
-            if (powerUps[PowerUpTypes.BazookaLauncher] > 0)
+            if(rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.Bazooka)
+                rulesManager.Punish(this);
+
+            if (powerUps[PowerUpTypes.Bazooka] > 0)
             {
                 Debug.Log($"Player {playerId} shoot Bazooka launcher!");
-                powerUps[PowerUpTypes.BazookaLauncher] -= 1;
+                powerUps[PowerUpTypes.Bazooka] -= 1;
 
                 GameObject rocket = Instantiate(rocketPrefab, transform.position + rocketOffset, rocketPrefab.transform.rotation);
                 
@@ -94,6 +120,9 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Ability2_" + playerId) && IsPlayerInRangeOf(enemyPlayer, 2f))
         {
+            if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.CQC)
+                rulesManager.Punish(this);
+
             if (powerUps[PowerUpTypes.CQC] > 0)
             {
                 Debug.Log($"Player {playerId} engaged in Close Quarters Combat!");
@@ -112,6 +141,9 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Ability3_" + playerId) && !shieldActive)
         {
+            if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.Shield)
+                rulesManager.Punish(this);
+
             if (powerUps[PowerUpTypes.Shield] > 0)
             {
                 Debug.Log($"Player {playerId} activated shield!");
@@ -137,19 +169,6 @@ public class PlayerController : MonoBehaviour
             GeneratePowerUp();
             OnPowerUpPicked?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
         }
-    }
-
-    IEnumerator StartShieldDeactivationCountdown(GameObject obj)
-    {
-        yield return new WaitForSeconds(shieldDurationSeconds);
-        shieldActive = false;
-        Destroy(obj);
-    }
-
-    IEnumerator RemoveSpawnedHammer(GameObject obj)
-    {
-        yield return new WaitForSeconds(1);
-        Destroy(obj);
     }
 
     GameObject GetEnemyGameObject()
@@ -178,7 +197,7 @@ public class PlayerController : MonoBehaviour
 
     void InitializePowerUps()
     {
-        powerUps.Add(PowerUpTypes.BazookaLauncher, 5);
+        powerUps.Add(PowerUpTypes.Bazooka, 5);
         powerUps.Add(PowerUpTypes.CQC, 5);
         powerUps.Add(PowerUpTypes.Shield, 5);
     }
@@ -200,6 +219,17 @@ public class PlayerController : MonoBehaviour
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(playerId, currentHealth);
+
+        if(currentHealth == 0)
+        {
+            gameManager.GameOver(playerId, GetEnemyGameObject());
+        }
+    }
+
+    public void StunPlayer()
+    {
+        playerStunned = true;
+        StartCoroutine(RemoveStunFromPlayer());
     }
 
     bool IsPlayerInRangeOf(GameObject target, float range)
@@ -208,6 +238,27 @@ public class PlayerController : MonoBehaviour
         return distance <= range;
     }
 
+    // Coroutine methods
+    IEnumerator RemoveStunFromPlayer()
+    {
+        yield return new WaitForSeconds(stunDurationSeconds);
+        playerStunned = false;
+    }
+
+    IEnumerator StartShieldDeactivationCountdown(GameObject obj)
+    {
+        yield return new WaitForSeconds(shieldDurationSeconds);
+        shieldActive = false;
+        Destroy(obj);
+    }
+
+    IEnumerator RemoveSpawnedHammer(GameObject obj)
+    {
+        yield return new WaitForSeconds(1);
+        Destroy(obj);
+    }
+
+    // Getters
     public float GetCurrentHealth() => currentHealth;
     public float GetMaxHealth() => maxHealth;
 }

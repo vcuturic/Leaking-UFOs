@@ -2,7 +2,7 @@ using UnityEngine;
 
 public enum PowerUpTypes
 {
-    BazookaLauncher,
+    Bazooka,
     CQC,
     Shield
 }

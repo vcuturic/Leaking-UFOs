@@ -29,7 +29,7 @@ public class Abilities : MonoBehaviour
 
     void UpdateUI(object sender, PowerUpEventArgs pupArgs)
     {
-        bazookaText.text = "Bazooka: " + pupArgs.powerUps[PowerUpTypes.BazookaLauncher];
+        bazookaText.text = "Bazooka: " + pupArgs.powerUps[PowerUpTypes.Bazooka];
         CQCText.text = "CQC: " + pupArgs.powerUps[PowerUpTypes.CQC];
         shieldText.text = "Shield: " + pupArgs.powerUps[PowerUpTypes.Shield];
     }
