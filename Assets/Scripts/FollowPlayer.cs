@@ -1,19 +1,24 @@
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class FollowPlayer : MonoBehaviour
 {
-    public GameObject player;
-    private Vector3 offset;
+    public GameObject target;
+    public float followSpeed = 5f;
+    public Vector3 offset = new Vector3(0f, 8f, -20f); 
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void LateUpdate() 
     {
-        offset = transform.position - player.transform.position;
-    }
+        if (target != null)
+        {
+            // Calculate the desired position with offset
+            Vector3 desiredPosition = target.transform.position + target.transform.TransformDirection(offset);
 
-    // Update is called once per frame
-    void LateUpdate()
-    {
-        transform.position = player.transform.position + offset;
+            // Smoothly move towards the desired position
+            transform.position = Vector3.Lerp(transform.position, desiredPosition, followSpeed * Time.deltaTime);
+
+            // Optional: Make the object look at the target
+            transform.LookAt(target.transform);
+        }
     }
 }

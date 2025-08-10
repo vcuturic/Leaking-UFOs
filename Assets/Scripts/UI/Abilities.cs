@@ -14,6 +14,7 @@ public class Abilities : MonoBehaviour
         player = GetComponentInParent<PlayerController>();
 
         player.OnPowerUpPicked += UpdateUI;
+        player.OnPowerUpUsed += UpdateUI;
         // ADD power used here
 
         bazookaText.text = "Bazooka: 0";

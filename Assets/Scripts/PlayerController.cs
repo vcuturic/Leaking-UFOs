@@ -7,10 +7,12 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     // Movement
-    public float speed = 5.0f;
-    public float turnSpeed;
+    public float speed = 10f;
+    public float turnSpeed = 10f;
     private float horizontalInput;
     private float forwardInput;
+    private float rotationInput;
+    public float rotationSpeed = 10f;
     // Shooting
     public GameObject projectilePrefab;
     [SerializeField] private Transform[] gunSpawnPoints;
@@ -25,6 +27,7 @@ public class PlayerController : MonoBehaviour
     public string playerId;
     // PowerUps/Abilities
     public event EventHandler<PowerUpEventArgs> OnPowerUpPicked;
+    public event EventHandler<PowerUpEventArgs> OnPowerUpUsed;
     private Dictionary<PowerUpTypes, int> powerUps = new Dictionary<PowerUpTypes, int>();
     // Rocket/Bazooka
     public GameObject rocketPrefab;
@@ -43,7 +46,12 @@ public class PlayerController : MonoBehaviour
     private RulesManager rulesManager;
     // Player status effects
     private bool playerStunned = false;
-    private float stunDurationSeconds = 3;
+    private float stunDurationSeconds = 3f;
+    // N20
+    private bool usingNitrous = false;
+    private float currentNitrous;
+    private float maxNitrous = 100f;
+    public event EventHandler<float> OnNitrousChange;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -52,10 +60,12 @@ public class PlayerController : MonoBehaviour
         rulesManager = FindFirstObjectByType<RulesManager>();
 
         currentHealth = maxHealth;
+        currentNitrous = maxNitrous;
 
         InitializePowerUps();
 
         OnHealthChanged?.Invoke(playerId, currentHealth);
+        OnNitrousChange?.Invoke(this, currentNitrous);
     }
 
     // Update is called once per frame
@@ -64,6 +74,27 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
         HandleShooting();
         HandleAbilities();
+        HandleNitrous();
+    }
+
+    void HandleNitrous()
+    {
+        if (!gameManager.isGameActive || playerStunned) return;
+
+        if (Input.GetButton("N20" + playerId))
+        {
+            usingNitrous = true;
+            currentNitrous = Mathf.Max(0, currentNitrous - Time.deltaTime * 10f);
+            speed = 20f;
+            OnNitrousChange?.Invoke(this, currentNitrous);
+        }
+        else if(currentNitrous < maxNitrous)
+        {
+            if (usingNitrous) usingNitrous = false;
+            currentNitrous = Mathf.Min(100, currentNitrous + Time.deltaTime * 5f);
+            speed = 10f;
+            OnNitrousChange?.Invoke(this, currentNitrous);
+        }
     }
 
     void HandleMovement()
@@ -73,8 +104,12 @@ public class PlayerController : MonoBehaviour
         horizontalInput = Input.GetAxis("Horizontal" + playerId);
         forwardInput = Input.GetAxis("Vertical" + playerId);
 
+        rotationInput = Input.GetAxis("Rotation" + playerId);
+
         transform.Translate(Vector3.forward * Time.deltaTime * speed * forwardInput);
         transform.Translate(Vector3.right * Time.deltaTime * turnSpeed * horizontalInput);
+
+        transform.Rotate(Vector3.up * Time.deltaTime * rotationInput * rotationSpeed);
     }
 
     void HandleShooting()
@@ -108,7 +143,9 @@ public class PlayerController : MonoBehaviour
             if (powerUps[PowerUpTypes.Bazooka] > 0)
             {
                 Debug.Log($"Player {playerId} shoot Bazooka launcher!");
+
                 powerUps[PowerUpTypes.Bazooka] -= 1;
+                OnPowerUpUsed?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
 
                 GameObject rocket = Instantiate(rocketPrefab, transform.position + rocketOffset, rocketPrefab.transform.rotation);
                 
@@ -126,7 +163,9 @@ public class PlayerController : MonoBehaviour
             if (powerUps[PowerUpTypes.CQC] > 0)
             {
                 Debug.Log($"Player {playerId} engaged in Close Quarters Combat!");
+
                 powerUps[PowerUpTypes.CQC] -= 1;
+                OnPowerUpUsed?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
 
                 var HammerTargetRotation = Quaternion.LookRotation(enemyPlayer.transform.position - transform.position);
                 GameObject spawnedHammer = Instantiate(hammerPrefab, transform.position + hammerOffset, HammerTargetRotation);
@@ -149,6 +188,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log($"Player {playerId} activated shield!");
 
                 powerUps[PowerUpTypes.Shield] -= 1;
+                OnPowerUpUsed?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
 
                 GameObject spawnedShield = Instantiate(shieldPrefab, transform.position, transform.rotation, transform);
 
@@ -157,8 +197,6 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(StartShieldDeactivationCountdown(spawnedShield));
             }
         }
-
-        // ADD power used here
     }
 
     private void OnTriggerEnter(Collider other)
@@ -259,6 +297,8 @@ public class PlayerController : MonoBehaviour
     }
 
     // Getters
+    public float GetCurrentNitrous() => currentNitrous;
+    public float GetMaxNitrous() => maxNitrous;
     public float GetCurrentHealth() => currentHealth;
     public float GetMaxHealth() => maxHealth;
 }
