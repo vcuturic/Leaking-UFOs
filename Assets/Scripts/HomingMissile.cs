@@ -1,6 +1,4 @@
-using TMPro;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class HomingMissile : MonoBehaviour
 {
@@ -36,7 +34,12 @@ public class HomingMissile : MonoBehaviour
             PlayerController enemyScript = enemyPlayer.GetComponent<PlayerController>();
 
             if(!enemyScript.shieldActive)
+            {
                 enemyScript.TakeDamage(missileDamage);
+                enemyScript.StunPlayer();
+                SoundManager.Instance.PlayRocketImpactSFX();
+                VFXManager.Instance.PlayExplosion(enemyPlayer.transform.position);
+            }
 
             Destroy(gameObject);
         }

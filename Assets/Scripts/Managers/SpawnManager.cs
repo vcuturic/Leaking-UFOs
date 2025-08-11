@@ -5,8 +5,8 @@ public class SpawnManager : MonoBehaviour
 {
     public GameObject powerUpPrefab;
     public float powerUpSpawnTimeSeconds = 7f;
-    private float floorXRange = 45;
-    private float floorZRange = 24;
+    private float floorXRange = 45f;
+    private float floorZRange = 24f;
     private float powerUpHeight = 1.2f;
     private PlayerController[] players;
 

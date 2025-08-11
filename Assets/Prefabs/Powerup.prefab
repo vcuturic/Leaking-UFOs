@@ -67,7 +67,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: cf22ac9b16eab2b4c8cbccf3b8eddfc4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 7669597e2cd68b246afed9abf2c0d93f, type: 2}
+      objectReference: {fileID: 2100000, guid: 54c8451b55ffecb48864cfb6ba684d60, type: 2}
     - target: {fileID: 919132149155446097, guid: cf22ac9b16eab2b4c8cbccf3b8eddfc4, type: 3}
       propertyPath: m_Name
       value: Powerup
@@ -82,42 +82,16 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: cf22ac9b16eab2b4c8cbccf3b8eddfc4, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7173899089737597890}
+      addedObject: {fileID: 6959478078514117017}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: cf22ac9b16eab2b4c8cbccf3b8eddfc4, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6959478078514117017}
+      addedObject: {fileID: -5981555252291730853}
   m_SourcePrefab: {fileID: 100100000, guid: cf22ac9b16eab2b4c8cbccf3b8eddfc4, type: 3}
 --- !u!1 &1896095153792785724 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cf22ac9b16eab2b4c8cbccf3b8eddfc4, type: 3}
   m_PrefabInstance: {fileID: 1626117975728037997}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7173899089737597890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1896095153792785724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 845c415f3181b4840ab566c40e714752, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isRotating: 1
-  rotateX: 0
-  rotateY: 1
-  rotateZ: 0
-  rotationSpeed: 85.67
-  isFloating: 0
-  useEasingForFloating: 0
-  floatHeight: 1.93
-  floatSpeed: 0.4
-  startScale: {x: 1, y: 1, z: 1}
-  endScale: {x: 1.2, y: 1.2, z: 1.2}
-  isScaling: 0
-  useEasingForScaling: 0
-  scaleLerpSpeed: 1.11
 --- !u!65 &6959478078514117017
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -139,3 +113,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.3443506, y: 2.62107, z: 2.2295873}
   m_Center: {x: -0.00000083446497, y: 0, z: 0}
+--- !u!114 &-5981555252291730853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896095153792785724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d263837e88d34540825c1e367102fba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

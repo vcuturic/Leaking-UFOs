@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     private float forwardInput;
     private float rotationInput;
     public float rotationSpeed = 10f;
+    private float floorXRange = 46f;
+    private float floorZRange = 24f;
     // Shooting
     public GameObject projectilePrefab;
     [SerializeField] private Transform[] gunSpawnPoints;
@@ -52,6 +54,7 @@ public class PlayerController : MonoBehaviour
     private float currentNitrous;
     private float maxNitrous = 100f;
     public event EventHandler<float> OnNitrousChange;
+    private bool nitrousSoundPlaying = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -86,11 +89,24 @@ public class PlayerController : MonoBehaviour
             usingNitrous = true;
             currentNitrous = Mathf.Max(0, currentNitrous - Time.deltaTime * 10f);
             speed = 20f;
+
+            if (!nitrousSoundPlaying)
+            {
+                SoundManager.Instance.PlayNitrousSFX(); 
+                nitrousSoundPlaying = true;
+            }
+
             OnNitrousChange?.Invoke(this, currentNitrous);
         }
         else if(currentNitrous < maxNitrous)
         {
-            if (usingNitrous) usingNitrous = false;
+            if (usingNitrous)
+            {
+                usingNitrous = false;
+                SoundManager.Instance.PlayUFOHummingSFX();
+                nitrousSoundPlaying = false;
+            }
+
             currentNitrous = Mathf.Min(100, currentNitrous + Time.deltaTime * 5f);
             speed = 10f;
             OnNitrousChange?.Invoke(this, currentNitrous);
@@ -110,6 +126,12 @@ public class PlayerController : MonoBehaviour
         transform.Translate(Vector3.right * Time.deltaTime * turnSpeed * horizontalInput);
 
         transform.Rotate(Vector3.up * Time.deltaTime * rotationInput * rotationSpeed);
+
+        // Clamp position so player can’t leave bounds
+        Vector3 pos = transform.position;
+        pos.x = Mathf.Clamp(pos.x, -floorXRange, floorXRange);
+        pos.z = Mathf.Clamp(pos.z, -floorZRange, floorZRange);
+        transform.position = pos;
     }
 
     void HandleShooting()
@@ -123,6 +145,9 @@ public class PlayerController : MonoBehaviour
             foreach (var spawnPoint in gunSpawnPoints)
             {
                 GameObject projectile = Instantiate(projectilePrefab, spawnPoint.position, spawnPoint.rotation);
+
+                SoundManager.Instance.PlayBeamSFX(0.05f);
+                
                 // Set the owner/spawner of the projectile so it can ignore colliding with owner (See Projectile.cs)
                 Projectile projScript = projectile.GetComponent<Projectile>();
                 projScript.SetProjectileOwner(gameObject);
@@ -137,12 +162,12 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Ability1_" + playerId))
         {
-            if(rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.Bazooka)
-                rulesManager.Punish(this);
-
             if (powerUps[PowerUpTypes.Bazooka] > 0)
             {
-                Debug.Log($"Player {playerId} shoot Bazooka launcher!");
+                Debug.Log($"Player {playerId} used Bazooka launcher!");
+
+                if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.Bazooka)
+                    rulesManager.Punish(this);
 
                 powerUps[PowerUpTypes.Bazooka] -= 1;
                 OnPowerUpUsed?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
@@ -152,17 +177,19 @@ public class PlayerController : MonoBehaviour
                 HomingMissile missileScript = rocket.GetComponent<HomingMissile>();
                 
                 missileScript.Initialize(enemyPlayer);
+
+                SoundManager.Instance.PlayRocketFireSFX();
             }
         }
 
         if (Input.GetButtonDown("Ability2_" + playerId) && IsPlayerInRangeOf(enemyPlayer, 2f))
         {
-            if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.CQC)
-                rulesManager.Punish(this);
-
             if (powerUps[PowerUpTypes.CQC] > 0)
             {
                 Debug.Log($"Player {playerId} engaged in Close Quarters Combat!");
+
+                if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.CQC)
+                    rulesManager.Punish(this);
 
                 powerUps[PowerUpTypes.CQC] -= 1;
                 OnPowerUpUsed?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
@@ -174,23 +201,27 @@ public class PlayerController : MonoBehaviour
                 
                 enemyScript.TakeDamage(hammerDamage);
 
+                SoundManager.Instance.PlayHammerSFX();
+
                 StartCoroutine(RemoveSpawnedHammer(spawnedHammer));
             }
         }
 
         if (Input.GetButtonDown("Ability3_" + playerId) && !shieldActive)
         {
-            if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.Shield)
-                rulesManager.Punish(this);
-
             if (powerUps[PowerUpTypes.Shield] > 0)
             {
                 Debug.Log($"Player {playerId} activated shield!");
+
+                if (rulesManager.GetPlayerForbiddenRule(playerId) == PowerUpTypes.Shield)
+                    rulesManager.Punish(this);
 
                 powerUps[PowerUpTypes.Shield] -= 1;
                 OnPowerUpUsed?.Invoke(this, new PowerUpEventArgs(playerId, powerUps));
 
                 GameObject spawnedShield = Instantiate(shieldPrefab, transform.position, transform.rotation, transform);
+
+                SoundManager.Instance.PlayShieldSFX();
 
                 shieldActive = true;
 
@@ -235,9 +266,9 @@ public class PlayerController : MonoBehaviour
 
     void InitializePowerUps()
     {
-        powerUps.Add(PowerUpTypes.Bazooka, 5);
-        powerUps.Add(PowerUpTypes.CQC, 5);
-        powerUps.Add(PowerUpTypes.Shield, 5);
+        powerUps.Add(PowerUpTypes.Bazooka, 0);
+        powerUps.Add(PowerUpTypes.CQC, 0);
+        powerUps.Add(PowerUpTypes.Shield, 0);
     }
 
     public void GeneratePowerUp()
@@ -245,6 +276,10 @@ public class PlayerController : MonoBehaviour
         PowerUpTypes powerUp = (PowerUpTypes)UnityEngine.Random.Range(0, 3);
 
         Debug.Log($"Generated {powerUp} PowerUp!");
+
+        if (powerUp == PowerUpTypes.Bazooka) SoundManager.Instance.PlayRocketPickupSFX();
+        if (powerUp == PowerUpTypes.CQC) SoundManager.Instance.PlayHammerPickupSFX();
+        if (powerUp == PowerUpTypes.Shield) SoundManager.Instance.PlayShieldPickupSFX();
 
         if(powerUps.ContainsKey(powerUp))
         {

@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        SoundManager.Instance.PlayMenuMusic();
     }
 
     // Update is called once per frame
@@ -50,6 +50,8 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         title.gameObject.SetActive(false);
+        StartCoroutine(SoundManager.Instance.FadeMusic(SoundManager.Instance.gameMusic, 1));
+        SoundManager.Instance.PlayUFOHummingSFX();
         isGameActive = true;
     }
 
