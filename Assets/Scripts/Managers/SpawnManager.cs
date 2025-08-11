@@ -4,7 +4,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     public GameObject powerUpPrefab;
-    public float powerUpSpawnTimeSeconds = 7f;
+    public float powerUpSpawnTimeSeconds = 4f;
     private float floorXRange = 45f;
     private float floorZRange = 24f;
     private float powerUpHeight = 1.2f;

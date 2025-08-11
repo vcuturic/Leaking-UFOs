@@ -4,7 +4,7 @@ public class HomingMissile : MonoBehaviour
 {
     public float turnSpeed = 10;
     public float rocketVelocity = 15;
-    public float lifeTime = 30f;
+    public float lifeTime = 10f;
     private float missileRange = 2f;
     private float missileDamage = 20f;
 
