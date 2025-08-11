@@ -9,6 +9,8 @@ Both players choose a rule that their dearest enemy must not break. And **DO NOT
 
 **BUT BE WARY,** not all abilities are within arm’s reach. There is a **JUDGE** who will carefully consider your **misdeeds**.
 
+And do not forget to collect your powerups, they spawn every **4 seconds**.
+
 ---
 
 ## Player 1 Controls
@@ -41,7 +43,6 @@ Both players choose a rule that their dearest enemy must not break. And **DO NOT
 - Use your **Shield** wisely — it can block incoming missiles, but not much other.
 - **CQC/Hammer** is perfect for close-range punishment.
 - Keep moving — standing still is a recipe for disaster.
-- And do not forget to collect your powerups.
 
 ---
 
